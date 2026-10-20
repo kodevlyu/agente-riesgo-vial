@@ -14,7 +14,8 @@ from src.tools.reporte import guardar_reporte
 from src.tools.riesgo import calcular_riesgo_comuna, ranking_riesgo
 
 load_dotenv()
-
+from src.errores import instalar_manejo_errores
+instalar_manejo_errores()
 SISTEMA = (
     "Eres un asistente experto en seguridad vial en Chile. "
     "Respondes en español, de forma clara y breve. "

@@ -10,8 +10,11 @@ from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
 
 from src.agente import construir_agente
+from src.tools.riesgo import calcular_riesgo_comuna, ranking_riesgo
 
 load_dotenv()
+from src.errores import instalar_manejo_errores
+instalar_manejo_errores()
 
 MAX_REPLANES = 2
 MARCAS_FALLO = ("No hay datos", "No se encontraron")
