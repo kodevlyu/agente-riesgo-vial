@@ -98,6 +98,22 @@ python -m src.planificador "Compara las 3 comunas más riesgosas con lluvia y si
 Remove-Item chroma_memoria -Recurse -ErrorAction SilentlyContinue
 ```
 
+## Diagramas y bocetos de diseño
+
+Los diagramas del sistema están en `docs/` (código fuente en `docs/diagramas.md`).
+
+**Arquitectura general**
+
+![Arquitectura general](docs/arquitectura.png)
+
+**Flujo del planificador con replanificación**
+
+![Flujo del planificador](docs/planificador.png)
+
+**Memoria de corto y largo plazo**
+
+![Memoria de largo plazo entre sesiones](docs/memoria.png)
+
 ## Pruebas y evidencia
 
 Los tres escenarios de prueba están en `tests/evidencia/`:
