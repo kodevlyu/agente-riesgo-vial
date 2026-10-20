@@ -8,19 +8,25 @@ from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from src.tools.consulta import consultar_siniestros
+from src.tools.riesgo import calcular_riesgo_comuna, ranking_riesgo
 
 load_dotenv()
 
 SISTEMA = (
     "Eres un asistente experto en seguridad vial en Chile. "
     "Respondes en español, de forma clara y breve. "
-    "Para cualquier dato sobre siniestros (cantidades, causas, rutas, clima, víctimas) "
-    "DEBES usar la herramienta consultar_siniestros y basarte solo en lo que devuelva. "
-    "Si la herramienta no entrega datos suficientes, dilo explícitamente. "
+    "Tienes tres herramientas: "
+    "consultar_siniestros (busca siniestros concretos y resúmenes por comuna), "
+    "calcular_riesgo_comuna (puntaje de riesgo de una comuna, con clima opcional) y "
+    "ranking_riesgo (comunas más riesgosas, con clima opcional). "
+    "Para cualquier dato debes usar las herramientas y basarte solo en lo que devuelvan. "
+    "Si piden comparar condiciones (por ejemplo con y sin lluvia), llama la herramienta "
+    "una vez por cada condición. "
+    "Si las herramientas no entregan datos suficientes, dilo explícitamente. "
     "Los datos son simulados con fines académicos."
 )
 
-TOOLS = [consultar_siniestros]
+TOOLS = [consultar_siniestros, calcular_riesgo_comuna, ranking_riesgo]
 
 
 def construir_agente():
@@ -47,8 +53,8 @@ if __name__ == "__main__":
     agente = construir_agente()
     config = {"configurable": {"thread_id": "prueba-1"}}
     pregunta = (
-        "¿Cuáles son las principales causas de siniestros en Melipilla "
-        "y qué ruta es la más afectada?"
+        "¿Qué tan riesgosa es Melipilla y cómo cambia su riesgo cuando llueve? "
+        "Dime también cuál es la comuna más riesgosa con lluvia."
     )
     resultado = agente.invoke({"messages": [HumanMessage(content=pregunta)]}, config)
 
