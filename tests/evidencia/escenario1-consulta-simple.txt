@@ -1,0 +1,8 @@
+﻿[SESION] escenario-1
+[PREGUNTA] ¿Cuántos siniestros hubo en Maipú y cuál fue la causa más frecuente?
+[TOOL] consultar_siniestros <- {'consulta': 'número de siniestros y causas más frecuentes', 'comuna': 'Maipú'}
+
+[RESPUESTA]
+En la comuna de **Maipú** se registraron **91 siniestros** viales (con un saldo de 12 fallecidos y 58 lesionados graves). 
+
+La causa más frecuente fue la **desobediencia a la señalización**.

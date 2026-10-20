@@ -1,0 +1,16 @@
+﻿[SESION] escenario-3b-sesion-2
+[PREGUNTA] Hazme un reporte de mi comuna cuando llueve.
+[TOOL] buscar_recuerdos <- {'consulta': 'mi comuna'}
+[TOOL] calcular_riesgo_comuna <- {'clima': 'Lluvia', 'comuna': 'Melipilla'}
+[TOOL] consultar_siniestros <- {'comuna': 'Melipilla', 'clima': 'Lluvia', 'consulta': 'siniestros con lluvia'}
+[TOOL] guardar_reporte <- {'titulo': 'Reporte de Riesgo Vial - Melipilla con Lluvia', 'contenido': '# Reporte de Seguridad Vial: Melipilla (Condición: Lluvia)\n\n## Resumen de Riesgo\n- **Puntaje de Riesgo:** 95.8 / 100\n- **Nivel de Riesgo:** ALTO (Puesto 3 de 14 comunas)\n- **Siniestros con lluvia:** 21\n- **Víctimas con lluvia:** 2 fallecidos y 17 lesionados graves\n\n## Contexto y Causas\nEl 25.9% de los siniestros totales en Melipilla ocurren bajo condiciones de lluvia. Las causas principales identificadas en estos eventos incluyen la conducción bajo la influencia del alcohol, la desobediencia a la señalización y la distracción al volante, concentrándose principalmente en la Ruta 78.'}
+
+[RESPUESTA]
+He generado y guardado el reporte para tu comuna (**Melipilla**) en condiciones de **lluvia**. 
+
+**Resumen clave:**
+- **Nivel de riesgo:** ALTO (Puntaje: 95.8/100, puesto 3 de 14).
+- **Cifras bajo lluvia:** 21 siniestros, 2 fallecidos y 17 lesionados graves.
+- **Ruta principal afectada:** Ruta 78.
+
+El archivo completo ha sido guardado como `outputs/reporte-de-riesgo-vial-melipilla-con-lluvia-20261020-014700.md`.

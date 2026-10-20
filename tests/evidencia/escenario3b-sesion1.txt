@@ -1,0 +1,8 @@
+﻿[SESION] escenario-3b-sesion-1
+[PREGUNTA] Recuerda que me interesa sobre todo la comuna de Melipilla y que prefiero reportes cortos.
+[TOOL] guardar_recuerdo <- {'texto': 'Al usuario le interesa sobre todo la comuna de Melipilla y prefiere reportes cortos.', 'tipo': 'preferencia'}
+
+[RESPUESTA]
+He guardado esa preferencia en mi memoria. De ahora en adelante tendré presente que te interesa principalmente la comuna de **Melipilla** y que prefieres reportes cortos. 
+
+¿Te gustaría que calculemos el riesgo vial actual para Melipilla o que revisemos los siniestros registrados en esa comuna?
