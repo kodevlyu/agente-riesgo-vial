@@ -1,5 +1,28 @@
+# Credenciales y configuraciones privadas
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Entorno virtual y archivos Python
 .venv/
 __pycache__/
+*.pyc
+
+# Bases vectoriales locales
 chroma_db/
 chroma_memoria/
+
+# Configuracion privada de Streamlit
+.streamlit/secrets.toml
+
+# Reportes generados localmente
+outputs/*.md
+
+# Pruebas locales
+resultados/prueba_local/
+
+# Archivos temporales
+*.tmp
+*.log

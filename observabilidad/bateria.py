@@ -1,7 +1,7 @@
 """Batería de pruebas instrumentada del agente (EP3).
 
 Uso:
-    python -m observabilidad.bateria                       # 13 casos x 3 repeticiones -> resultados/base/
+    python -m observabilidad.bateria                       # 13 casos x 3 repeticiones -> resultados/mejorado/
     python -m observabilidad.bateria --etiqueta mejora     # misma batería, otra carpeta (comparar antes/después)
     python -m observabilidad.bateria --casos N1,I1 --repeticiones 1   # prueba rápida
 
@@ -13,6 +13,8 @@ Salidas en resultados/<etiqueta>/:
 """
 
 import argparse
+import re
+from src.seguridad import sanitizar_datos, redactar_secretos
 import csv
 import json
 import os
@@ -60,7 +62,7 @@ def version_git() -> str:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--etiqueta", default="base")
+    ap.add_argument("--etiqueta", default="mejorado")
     ap.add_argument("--repeticiones", type=int, default=3)
     ap.add_argument("--casos", default="", help="IDs separados por coma; vacío = todos")
     ap.add_argument("--pausa", type=float, default=4.0, help="segundos entre solicitudes (cuota de Gemini)")
@@ -68,8 +70,12 @@ def main():
     args = ap.parse_args()
 
     casos = [c for c in CASOS if not args.casos or c.id in args.casos.split(",")]
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,60}", args.etiqueta) or args.etiqueta.lower() == "base":
+        ap.error("Usa una etiqueta nueva y distinta de base.")
+    if not casos or args.repeticiones < 1 or args.pausa < 0 or args.espera_429 < 0:
+        ap.error("Parámetros de prueba inválidos.")
     salida = BASE / "resultados" / args.etiqueta
-    salida.mkdir(parents=True, exist_ok=True)
+    salida.mkdir(parents=True, exist_ok=False)
     registro = RegistroEventos(salida / "logs.jsonl")
     version = version_git()
     modelo = os.getenv("GEMINI_MODEL", "")
@@ -154,18 +160,18 @@ def main():
                 **{k: rec.resultado[k] for k in ("cpu_pct", "cpu_pct_max", "ram_mb", "ram_peak_mb")},
                 "version": version, "modelo": modelo,
             }
-            escritor.writerow(fila)
+            escritor.writerow(sanitizar_datos(fila))
             f_csv.flush()
-            f_resp.write(json.dumps({
+            f_resp.write(json.dumps(sanitizar_datos({
                 "request_id": rid, "caso_id": caso.id, "repeticion": rep, "pregunta": caso.pregunta,
                 "respuesta": respuesta, "herramientas": herramientas, "correct": correcto,
                 "detalle": detalle, "status": status, "error_type": error_type, "error": error,
-            }, ensure_ascii=False) + "\n")
+            }), ensure_ascii=False) + "\n")
             f_resp.flush()
 
             marca = "OK " if correcto else ("ERR" if status == "error" else "MAL")
             print(f"[{n:>2}/{total}] {marca} {caso.id} rep{rep} {latencia/1000:6.1f}s "
-                  f"llm={trazador.n_llm} tools={trazador.n_tools} {error_type} {detalle[:70]}", flush=True)
+                  f"llm={trazador.n_llm} tools={trazador.n_tools} {error_type} {redactar_secretos(detalle)[:70]}", flush=True)
 
             time.sleep(args.espera_429 if error_type == "rate_limit" else args.pausa)
 
@@ -173,7 +179,7 @@ def main():
     f_resp.close()
     meta["fin"] = ahora_iso()
     (salida / f"meta_{meta['inicio'][:19].replace(':', '')}.json").write_text(
-        json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        json.dumps(sanitizar_datos(meta), ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nListo: {salida.relative_to(BASE)}")
 
 

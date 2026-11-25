@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
+from src.seguridad import redactar_secretos, sanitizar_datos
+
 import psutil
 from langchain_core.callbacks import BaseCallbackHandler
 
@@ -41,9 +43,11 @@ def _cadena(exc: BaseException):
 def clasificar_error(exc: BaseException) -> str:
     texto = " ".join(f"{type(e).__name__} {e}" for e in _cadena(exc))
     bajo = texto.lower()
+    if "billing" in bajo or "free tier is not available" in bajo:
+        return "facturacion"
     if "429" in texto or "resource_exhausted" in bajo or "quota" in bajo:
         return "rate_limit"
-    if "api key" in bajo or "api_key" in bajo or "permission_denied" in bajo or "401" in texto:
+    if "api key" in bajo or "api_key" in bajo or "permission_denied" in bajo or "401" in texto or "403" in texto:
         return "auth"
     if "404" in texto and "model" in bajo:
         return "modelo_no_disponible"
@@ -59,11 +63,7 @@ def clasificar_error(exc: BaseException) -> str:
 
 
 def sanitizar_error(exc: BaseException | str, largo: int = 180) -> str:
-    texto = str(exc)
-    llave = os.getenv("GOOGLE_API_KEY", "")
-    if llave:
-        texto = texto.replace(llave, "[REDACTADO]")
-    texto = re.sub(r"AIza[0-9A-Za-z_\-]{20,}", "[REDACTADO]", texto)
+    texto = redactar_secretos(str(exc))
     texto = re.sub(r"\s+", " ", texto).strip()
     return texto[:largo]
 
@@ -81,7 +81,7 @@ class RegistroEventos:
 
     def escribir(self, evento: dict):
         with self._lock, self.ruta.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(evento, ensure_ascii=False) + "\n")
+            f.write(json.dumps(sanitizar_datos(evento), ensure_ascii=False) + "\n")
 
 
 # --------------------------------------------------------------------------
@@ -169,7 +169,8 @@ class TrazadorEtapas(BaseCallbackHandler):
         texto = str(getattr(output, "content", output))
         # Las herramientas devuelven texto; "No hay datos" es un resultado válido pero vacío.
         vacio = "no hay datos" in texto.lower() or "no se encontraron" in texto.lower()
-        dur, _ = self._cerrar(run_id, "sin_datos" if vacio else "ok")
+        invalida = texto.lower().startswith("consulta inválida")
+        dur, _ = self._cerrar(run_id, "entrada_invalida" if invalida else ("sin_datos" if vacio else "ok"))
         with self._lock:
             self.n_tools += 1
             self.ms_tools += dur
