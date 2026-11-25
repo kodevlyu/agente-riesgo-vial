@@ -1,0 +1,29 @@
+{
+  "etiqueta": "base",
+  "inicio": "2026-11-24T22:31:54.158-03:00",
+  "version": "ead0a1e-mod",
+  "modelo": "gemini-3.5-flash-lite",
+  "python": "3.12.14",
+  "sistema": "Darwin 25.5.0 arm64",
+  "cpu_nucleos": 10,
+  "ram_total_gb": 16.0,
+  "repeticiones": 3,
+  "casos": [
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "C1",
+    "C2",
+    "C3",
+    "I1",
+    "I2",
+    "E1",
+    "E2",
+    "E3",
+    "E4"
+  ],
+  "pausa_s": 4.0,
+  "nota": "Cada ejecución usa un thread_id nuevo (sin memoria de corto plazo compartida). Las repeticiones se intercalan (ronda 1 de todos los casos, luego ronda 2...).",
+  "fin": "2026-11-24T22:36:10.572-03:00"
+}

@@ -1,0 +1,5 @@
+scenario,n,precision_pct,tasa_error_pct,latencia_media_ms,latencia_p95_ms,llm_media,tools_media,tokens_in_media,cpu_pct_media,ram_peak_mb
+normal,12,83.3,0.0,3046.4,7010.0,2.0,1.0,2486.0,5.4,1228.0
+complejo,9,100.0,0.0,1982.4,2494.2,2.0,1.67,2456.0,2.2,901.0
+incompleto,6,100.0,0.0,2314.9,3337.8,2.33,1.33,2905.0,2.4,908.1
+erroneo,12,100.0,0.0,2653.6,7191.8,1.5,0.5,1772.0,1.4,693.7

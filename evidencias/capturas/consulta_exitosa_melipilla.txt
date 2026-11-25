@@ -1,0 +1,11 @@
+[SESION] evidencia-ep3
+[PREGUNTA] ¿Qué tan riesgosa es Melipilla?
+[TOOL] calcular_riesgo_comuna <- {'comuna': 'Melipilla'}
+
+[RESPUESTA]
+Melipilla presenta un **nivel de riesgo ALTO**, con un puntaje de **90,6 sobre 100**, ubicándose en el **puesto 4** entre 14 comunas analizadas.
+
+El detalle registrado es:
+- **81** siniestros
+- **10** fallecidos
+- **56** lesionados graves

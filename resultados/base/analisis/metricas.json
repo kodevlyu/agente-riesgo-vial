@@ -1,0 +1,22 @@
+{
+  "ejecuciones": 39,
+  "casos": 13,
+  "precision_pct": 94.9,
+  "precision_sin_errores_pct": 94.9,
+  "consistencia_pct": 97.4,
+  "tasa_error_pct": 0.0,
+  "latencia_media_ms": 2567.5,
+  "latencia_p50_ms": 2027.1,
+  "latencia_p95_ms": 6876.2,
+  "latencia_max_ms": 10870.6,
+  "llm_share_pct": 93.1,
+  "tools_share_pct": 6.6,
+  "llamadas_llm_media": 1.9,
+  "tokens_in_media": 2323.9,
+  "tokens_out_media": 123.5,
+  "cpu_pct_media": 3.0,
+  "cpu_pct_max": 108.1,
+  "ram_mb_media": 706.2,
+  "ram_peak_mb": 1228.0,
+  "carga_inicial_ms": 28.2
+}

@@ -1,0 +1,6 @@
+request_id,caso_id,repeticion,latency_ms,n_llm,herramientas,motivos
+00c83dcb523d,N4,1,7220.2,2.0,consultar_siniestros,latencia > p95 global (6876 ms); latencia > 2x mediana del caso (2083 ms); incorrecta: siniestros 47:False
+16242047e38b,E4,1,10870.6,2.0,ranking_riesgo,latencia > p95 global (6876 ms); latencia > 2x mediana del caso (4182 ms)
+1d28e7e8bd75,N4,2,2082.7,2.0,consultar_siniestros,incorrecta: siniestros 47:False
+94ffddcfe17f,N3,3,6838.0,2.0,ranking_riesgo,latencia > 2x mediana del caso (2367 ms)
+00c83dcb523d,N4,1,4940.8,,tool:consultar_siniestros,arranque en frío de tool:consultar_siniestros: 4941 ms vs mediana 301 ms

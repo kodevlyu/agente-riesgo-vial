@@ -133,3 +133,72 @@ Los reportes que generó el agente en esas pruebas están en `outputs/`.
 - El puntaje se escala contra la comuna más riesgosa de cada filtro, por lo que puntajes con y sin filtro de clima no son estrictamente comparables, y en este conjunto casi todas las comunas resultan en nivel ALTO.
 - La búsqueda semántica devuelve una muestra de 6 siniestros; las causas citadas en los reportes provienen de esa muestra y no de un conteo completo.
 - Cuando una comuna no tiene datos, el planificador decide por su cuenta cómo continuar (verificar nombres, usar una comuna alternativa o reportar la limitación) sin pedir confirmación al usuario.
+## EP3 · Observabilidad del agente
+
+La Evaluación Parcial 3 instrumenta el agente para medir precisión, consistencia, errores, latencia (total y por etapa), CPU y RAM, con trazas correlacionadas por `request_id`.
+
+### Estructura agregada
+
+```
+observabilidad/
+  casos.py        13 casos (normal, complejo, incompleto, erroneo) + oráculo con pandas
+  trazas.py       callback de LangChain por etapa, muestreo CPU/RAM (psutil), errores sanitizados
+  bateria.py      ejecuta la batería y escribe resultados/<etiqueta>/
+  analisis.py     métricas, etapas, errores, anomalías, gráficos y comparación antes/después
+resultados/
+  base/           corrida base (resultados.csv, logs.jsonl, respuestas.jsonl, meta_*.json, analisis/)
+evidencias/
+  capturas/       capturas de ejecución y del dashboard
+```
+
+### Ejecutar la batería (macOS / Linux)
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env          # completar GOOGLE_API_KEY y GEMINI_MODEL
+python -m src.rag             # solo la primera vez
+python -m observabilidad.bateria --etiqueta base --repeticiones 3
+python -m observabilidad.analisis --etiqueta base
+```
+
+En Windows se usan los mismos comandos `python -m ...` tras activar el entorno con `.\.venv\Scripts\Activate.ps1`.
+
+Opciones útiles de la batería: `--casos N1,I1` (subconjunto), `--pausa 4` (segundos entre solicitudes, por la cuota de Gemini), `--espera-429 60`. Para comparar una mejora: correr con `--etiqueta mejora` y luego `python -m observabilidad.analisis --comparar base,mejora`.
+
+### Contrato de datos
+
+`resultados/<etiqueta>/resultados.csv` (una fila por ejecución):
+
+| Campo | Descripción | Unidad |
+|---|---|---|
+| request_id | id de la solicitud (correlaciona con logs.jsonl) | texto |
+| timestamp | inicio de la solicitud (ISO 8601, hora local) | fecha |
+| scenario | normal, complejo, incompleto, erroneo | texto |
+| caso_id / repeat_group / repeticion | caso, grupo de repetición y número de repetición | texto / entero |
+| expected | respuesta esperada (definida antes de probar) | texto |
+| correct | 1 si cumple la regla de corrección del caso | 0/1 |
+| detalle | por qué se consideró correcta o no | texto |
+| firma | hechos extraídos para medir consistencia | texto |
+| status / error_type | ok o error; tipo: rate_limit, auth, timeout, entrada_invalida, proveedor_5xx, tool_error, otro | texto |
+| latency_ms / llm_ms / tools_ms | latencia total, acumulada en LLM y en herramientas | ms |
+| n_llm / n_tools / herramientas | llamadas al LLM, a herramientas y cuáles | entero / texto |
+| tokens_in / tokens_out | tokens informados por Gemini | tokens |
+| cpu_pct / cpu_pct_max | CPU promedio y máxima del proceso (100 % = 1 núcleo) | % |
+| ram_mb / ram_peak_mb | memoria residente (RSS) al final y máxima | MB |
+| version / modelo | commit de git (`-mod` si había cambios en src/) y modelo Gemini | texto |
+
+`resultados/<etiqueta>/logs.jsonl` (un evento por etapa): `request_id, timestamp, stage (llm, tool:<nombre>, total, carga_inicial), duration_ms, status (ok, error, sin_datos), error_type, error` (mensaje recortado y con la llave redactada), más `scenario, caso_id, repeticion, version` y tokens en las etapas `llm`.
+
+`respuestas.jsonl` guarda la respuesta del agente por ejecución para auditar la evaluación. Las preguntas son sintéticas y no contienen datos personales.
+
+### Métricas
+
+| Métrica | Cálculo |
+|---|---|
+| Precisión | correctas / evaluadas × 100. Referencia: oráculo pandas sobre `data/siniestros.csv` (re-implementa la fórmula del puntaje). Una ejecución con error cuenta como incorrecta. |
+| Consistencia | repeticiones con la misma firma que la respuesta modal del caso / repeticiones × 100. Firma = (veredicto, puntajes reales citados, comunas citadas; en orden si es ranking). No compara la redacción. |
+| Errores | ejecuciones fallidas / totales × 100, por `error_type`. Las respuestas incorrectas sin excepción se reportan aparte. |
+| Latencia | por solicitud y por etapa: media, p50, p95 y máximo, en ms. |
+| CPU / RAM | `psutil` sobre el proceso: CPU = tiempo de CPU / tiempo de pared de la solicitud; RAM = RSS. Se muestrea cada 100 ms para el máximo. |

@@ -68,20 +68,34 @@ def construir_agente():
     return grafo.compile(checkpointer=MemorySaver())
 
 
+def responder(pregunta: str, sesion: str = "sesion-1", agente=None, callbacks=None) -> dict:
+    """Ejecuta una consulta y devuelve la respuesta y las herramientas usadas.
+
+    Se usa desde la consola (abajo) y desde la batería de observabilidad,
+    que pasa sus propios callbacks para medir cada etapa.
+    """
+    agente = agente or construir_agente()
+    config = {"configurable": {"thread_id": sesion}, "callbacks": callbacks or []}
+    resultado = agente.invoke({"messages": [HumanMessage(content=pregunta)]}, config)
+    herramientas = [
+        {"name": tc["name"], "args": tc["args"]}
+        for m in resultado["messages"]
+        if m.type == "ai" and m.tool_calls
+        for tc in m.tool_calls
+    ]
+    return {"respuesta": resultado["messages"][-1].text, "herramientas": herramientas}
+
+
 if __name__ == "__main__":
     # Uso: python -m src.agente "pregunta" [nombre_sesion]
     pregunta = sys.argv[1] if len(sys.argv) > 1 else "¿Qué tan riesgosa es Melipilla?"
     sesion = sys.argv[2] if len(sys.argv) > 2 else "sesion-1"
 
-    agente = construir_agente()
-    config = {"configurable": {"thread_id": sesion}}
-    resultado = agente.invoke({"messages": [HumanMessage(content=pregunta)]}, config)
+    salida = responder(pregunta, sesion)
 
     print(f"[SESION] {sesion}")
     print(f"[PREGUNTA] {pregunta}")
-    for m in resultado["messages"]:
-        if m.type == "ai" and m.tool_calls:
-            for tc in m.tool_calls:
-                print(f"[TOOL] {tc['name']} <- {tc['args']}")
+    for tc in salida["herramientas"]:
+        print(f"[TOOL] {tc['name']} <- {tc['args']}")
     print("\n[RESPUESTA]")
-    print(resultado["messages"][-1].text)
+    print(salida["respuesta"])
