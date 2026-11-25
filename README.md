@@ -202,3 +202,36 @@ Opciones útiles de la batería: `--casos N1,I1` (subconjunto), `--pausa 4` (seg
 | Errores | ejecuciones fallidas / totales × 100, por `error_type`. Las respuestas incorrectas sin excepción se reportan aparte. |
 | Latencia | por solicitud y por etapa: media, p50, p95 y máximo, en ms. |
 | CPU / RAM | `psutil` sobre el proceso: CPU = tiempo de CPU / tiempo de pared de la solicitud; RAM = RSS. Se muestrea cada 100 ms para el máximo. |
+
+## Dashboard de observabilidad
+
+El proyecto incluye un dashboard interactivo desarrollado con Streamlit,
+Plotly y Pandas para visualizar los resultados de observabilidad del agente.
+
+### Funcionalidades
+
+- Visualizacion de precision, consistencia y errores tecnicos.
+- Monitoreo de latencia, CPU y memoria RAM.
+- Filtros por escenario, caso y estado de ejecucion.
+- Identificacion de anomalias y cuellos de botella.
+- Exploracion y descarga de logs.
+- Comparacion de metricas antes y despues de las mejoras.
+
+### Ejecucion del dashboard
+
+Instalar las dependencias:
+
+    python -m pip install -r requirements.txt
+
+Ejecutar:
+
+    python -m streamlit run dashboard.py
+
+Abrir en el navegador:
+
+    http://localhost:8501
+
+El dashboard utiliza los resultados almacenados en resultados/base/.
+No requiere una clave API para visualizar los resultados existentes.
+La comparacion posterior se habilita cuando existen resultados mejorados.
+
