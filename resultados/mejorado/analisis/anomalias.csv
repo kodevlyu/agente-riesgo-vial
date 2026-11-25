@@ -1,0 +1,8 @@
+request_id,caso_id,repeticion,latency_ms,n_llm,herramientas,motivos
+12bc56aed829,I1,1,3229.0,3.0,calcular_riesgo_comuna;consultar_estadisticas,latencia > 2x mediana del caso (1534 ms)
+e7431b03a8fb,E3,1,13030.9,5.0,calcular_riesgo_comuna;consultar_siniestros;consultar_estadisticas;calcular_riesgo_comuna,latencia > p95 global (5777 ms)
+bdbdc992f9c9,E3,2,12714.4,5.0,calcular_riesgo_comuna;consultar_siniestros;consultar_estadisticas;calcular_riesgo_comuna,latencia > p95 global (5777 ms)
+39ac067d9e22,E4,2,812.0,1.0,,incorrecta: comunas listadas 0: []
+7397bfc91f1d,I2,3,4710.4,2.0,calcular_riesgo_comuna,latencia > 2x mediana del caso (1978 ms)
+54a0fbefabfc,E1,3,2.3,0.0,,latencia > 2x mediana del caso (0 ms)
+e7431b03a8fb,E3,1,5757.9,,tool:consultar_siniestros,arranque en frío de tool:consultar_siniestros: 5758 ms vs mediana 236 ms
