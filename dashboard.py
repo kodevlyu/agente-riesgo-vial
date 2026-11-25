@@ -199,7 +199,7 @@ def mostrar_grafico(fig):
         margin=dict(l=20, r=20, t=60, b=30),
         legend_title_text=""
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def calcular_consistencia(df):
@@ -221,7 +221,7 @@ def resumen_filtrado(df):
         "precision_pct": df["correct"].mean() * 100,
         "consistencia_pct": calcular_consistencia(df),
         "tasa_error_pct": (
-            df["status"].ne("ok").mean() * 100
+            df["status"].eq("error").mean() * 100
         ),
         "latencia_media_ms": df["latency_ms"].mean(),
         "cpu_pct_media": df["cpu_pct"].mean(),
@@ -437,7 +437,10 @@ elif pagina == "Rendimiento":
 
     st.subheader("Cuellos de botella")
 
-    etapas_filtradas = logs_filtrados.groupby(
+    # El registro total incluye las etapas internas: no sumarlo dos veces.
+    etapas_filtradas = logs_filtrados[
+        logs_filtrados["stage"].ne("total")
+    ].groupby(
         "stage", as_index=False
     ).agg(
         llamadas=("duration_ms", "count"),
@@ -445,7 +448,21 @@ elif pagina == "Rendimiento":
         total_ms=("duration_ms", "sum")
     )
 
-    total_etapas = etapas_filtradas["total_ms"].sum()
+    total_etapas = datos["latency_ms"].sum()
+    st.caption(
+        "Porcentajes respecto al tiempo total de las ejecuciones seleccionadas. "
+        "El tiempo residual no atribuido a etapas se muestra como Otros."
+    )
+    residual = total_etapas - etapas_filtradas["total_ms"].sum()
+    if residual > 0:
+        etapas_filtradas = pd.concat([etapas_filtradas, pd.DataFrame([{
+            "stage": "Otros (tiempo residual)",
+            "llamadas": None,
+            "promedio_ms": None,
+            "total_ms": residual
+        }])], ignore_index=True)
+    elif residual < -0.01:
+        st.warning("Las duraciones de etapas superan el total; pueden existir solapamientos.")
 
     etapas_filtradas["porcentaje"] = (
         etapas_filtradas["total_ms"] / total_etapas * 100
@@ -473,10 +490,10 @@ elif pagina == "Rendimiento":
             "llamadas": "Llamadas",
             "promedio_ms": "Promedio (ms)",
             "total_ms": "Total (ms)",
-            "porcentaje": "% del tiempo registrado"
+            "porcentaje": "% del tiempo total"
         }),
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
 # ==================================================
@@ -571,7 +588,7 @@ elif pagina == "Precisión y consistencia":
     st.dataframe(
         tabla,
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
     st.download_button(
@@ -649,7 +666,7 @@ elif pagina == "Logs y anomalías":
             "motivos": "Motivos"
         }),
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
     if not anomalias_etapa.empty:
@@ -658,16 +675,26 @@ elif pagina == "Logs y anomalías":
         st.dataframe(
             anomalias_etapa,
             hide_index=True,
-            use_container_width=True
+            width="stretch"
         )
 
-    st.subheader("Errores técnicos — globales")
-
-    st.dataframe(
-        errores,
-        hide_index=True,
-        use_container_width=True
-    )
+    st.subheader("Calidad y errores técnicos — globales")
+    st.caption("Indicadores de la línea base, independientes de los filtros.")
+    fallos_tecnicos = resultados["status"].eq("error")
+    respuestas_incorrectas = resultados["status"].eq("ok") & resultados["correct"].eq(0)
+    e1, e2 = st.columns(2)
+    e1.metric("Errores técnicos", int(fallos_tecnicos.sum()))
+    e2.metric("Respuestas incorrectas", int(respuestas_incorrectas.sum()))
+    st.caption("Una respuesta incorrecta puede producirse sin un fallo técnico.")
+    errores_tecnicos = errores[errores["error_type"].ne("respuesta_incorrecta")]
+    errores_calidad = errores[errores["error_type"].eq("respuesta_incorrecta")]
+    if errores_tecnicos.empty:
+        st.success("No hay errores técnicos registrados en la línea base.")
+    else:
+        st.dataframe(errores_tecnicos, hide_index=True, width="stretch")
+    if not errores_calidad.empty:
+        st.markdown("**Detalle de respuestas incorrectas**")
+        st.dataframe(errores_calidad, hide_index=True, width="stretch")
 
     st.divider()
     st.subheader("Explorador de logs")
@@ -718,7 +745,7 @@ elif pagina == "Logs y anomalías":
     st.dataframe(
         registros,
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
     st.download_button(
@@ -772,7 +799,7 @@ elif pagina == "Comparación":
         st.dataframe(
             comparacion,
             hide_index=True,
-            use_container_width=True
+            width="stretch"
         )
 
         for _, fila in comparacion.iterrows():

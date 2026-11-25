@@ -235,3 +235,22 @@ El dashboard utiliza los resultados almacenados en resultados/base/.
 No requiere una clave API para visualizar los resultados existentes.
 La comparacion posterior se habilita cuando existen resultados mejorados.
 
+
+## Validacion del dashboard de observabilidad
+
+El dashboard permite analizar las 39 ejecuciones de la linea base mediante filtros interactivos por escenario, caso y estado.
+
+Funcionalidades verificadas:
+
+- Visualizacion de precision, consistencia y errores tecnicos.
+- Analisis de latencia, CPU y memoria RAM.
+- Identificacion de cuellos de botella sin duplicar tiempos.
+- Deteccion de anomalias por solicitud y etapa interna.
+- Separacion entre errores tecnicos y respuestas incorrectas.
+- Exploracion y descarga de registros filtrados.
+- Comparacion entre la linea base y la version mejorada.
+
+La linea base registra 37 respuestas correctas de 39 ejecuciones, 2 respuestas incorrectas y 0 errores tecnicos.
+
+La comparacion definitiva requiere los resultados reales de la nueva bateria de pruebas.
+
