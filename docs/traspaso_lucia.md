@@ -33,7 +33,7 @@ Las seis métricas del dashboard salen de `metricas.json` (o se recalculan desde
 | Precisión | 94,9 % (37/39) |
 | Consistencia | 97,4 % |
 | Tasa de error técnico | 0 % |
-| Latencia media / p95 | 2.568 ms / 6.876 ms |
+| Latencia media / p95 | 2.567 ms / 6.876 ms |
 | CPU media del proceso | 3,0 % (máx. 108 %) |
 | RAM media / pico | 706 MB / 1.228 MB |
 
